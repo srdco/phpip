@@ -4,7 +4,6 @@ namespace App\Http\Controllers;
 
 use App\Models\Actor;
 use App\Models\ActorPivot;
-use Illuminate\Database\UniqueConstraintViolationException;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\DB;
@@ -35,6 +34,15 @@ class ActorPivotController extends Controller
             'date' => 'date',
         ]);
 
+        $existingLink = ActorPivot::where('matter_id', $request->matter_id)
+            ->where('role', $request->role)
+            ->where('actor_id', $request->actor_id)
+            ->first();
+
+        if ($existingLink) {
+            return $existingLink;
+        }
+
         // Fix display order indexes if wrong
         $roleGroup = ActorPivot::where('matter_id', $request->matter_id)->where('role', $request->role);
         $max = $roleGroup->max('display_order');
@@ -59,14 +67,7 @@ class ActorPivotController extends Controller
             'date' => Now(),
         ]);
 
-        try {
-            return ActorPivot::create($request->except(['_token', '_method']));
-        } catch (UniqueConstraintViolationException $exception) {
-            return ActorPivot::where('matter_id', $request->matter_id)
-                ->where('role', $request->role)
-                ->where('actor_id', $request->actor_id)
-                ->firstOrFail();
-        }
+        return ActorPivot::create($request->except(['_token', '_method']));
     }
 
     /**
