@@ -35,6 +35,7 @@ use App\Http\Controllers\AutocompleteController;
 use App\Http\Controllers\MatterSearchController;
 use App\Http\Controllers\ClassifierController;
 use App\Http\Controllers\Auth\LoginController;
+use App\Http\Controllers\Auth\AutheliaController;
 use App\Http\Controllers\Auth\ForgotPasswordController;
 use App\Http\Controllers\Auth\ResetPasswordController;
 use App\Http\Controllers\Auth\ConfirmPasswordController;
@@ -46,6 +47,11 @@ Route::get('/', function () {
 
 // Auth routes defined explicitly to avoid requiring the laravel/ui route macro.
 Route::middleware('guest')->group(function () {
+    Route::get('auth/authelia', [AutheliaController::class, 'redirect'])
+        ->middleware('throttle:10,1')->name('authelia.redirect');
+    Route::get('auth/authelia/callback', [AutheliaController::class, 'callback'])
+        ->middleware('throttle:10,1')->name('authelia.callback');
+
     Route::get('login', [LoginController::class, 'showLoginForm'])->name('login');
     Route::post('login', [LoginController::class, 'login']);
 

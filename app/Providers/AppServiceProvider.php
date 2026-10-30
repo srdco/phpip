@@ -5,6 +5,9 @@ namespace App\Providers;
 use Illuminate\Pagination\Paginator;
 use Illuminate\Support\ServiceProvider;
 use Illuminate\Support\Facades\Gate;
+use Illuminate\Support\Facades\Event;
+use SocialiteProviders\Manager\SocialiteWasCalled;
+use SocialiteProviders\Authelia\Provider as AutheliaProvider;
 
 class AppServiceProvider extends ServiceProvider
 {
@@ -25,6 +28,10 @@ class AppServiceProvider extends ServiceProvider
      */
     public function boot()
     {
+        Event::listen(SocialiteWasCalled::class, function (SocialiteWasCalled $event) {
+            $event->extendSocialite('authelia', AutheliaProvider::class);
+        });
+
         Paginator::useBootstrapFive();
         Gate::define('client', fn ($user) => $user->isClient());
         Gate::define('except_client', fn ($user) => !$user->isClient());

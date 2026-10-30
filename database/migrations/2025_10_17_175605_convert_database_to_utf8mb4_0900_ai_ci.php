@@ -2,6 +2,8 @@
 
 use Illuminate\Database\Migrations\Migration;
 use Illuminate\Support\Facades\DB;
+use Illuminate\Support\Facades\Schema;
+use Illuminate\Database\Schema\Blueprint;
 
 return new class extends Migration
 {
@@ -211,15 +213,44 @@ return new class extends Migration
     public function down(): void
     {
         $database = DB::getDatabaseName();
+        $grammar = DB::connection()->getQueryGrammar();
+        $tables = DB::select("SELECT TABLE_NAME FROM information_schema.TABLES WHERE TABLE_SCHEMA = ? AND TABLE_TYPE = 'BASE TABLE'", [$database]);
+        $foreignKeys = [];
+
+        // Both sides of a string foreign key must have identical collations.
+        // Disabling checks alone does not let MySQL convert them one at a time.
+        // Capture every definition before changing anything, including composite
+        // keys and their update/delete rules.
+        foreach ($tables as $table) {
+            $foreignKeys[$table->TABLE_NAME] = Schema::getForeignKeys($table->TABLE_NAME);
+        }
+
+        foreach ($foreignKeys as $tableName => $keys) {
+            foreach ($keys as $key) {
+                Schema::table($tableName, fn (Blueprint $table) => $table->dropForeign($key['name']));
+            }
+        }
 
         // Revert to utf8mb4_unicode_ci
-        DB::statement("ALTER DATABASE `{$database}` CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci");
-
-        $tables = DB::select("SELECT TABLE_NAME FROM information_schema.TABLES WHERE TABLE_SCHEMA = '{$database}' AND TABLE_TYPE = 'BASE TABLE'");
+        DB::statement('ALTER DATABASE '.$grammar->wrap($database).' CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci');
 
         foreach ($tables as $table) {
             $tableName = $table->TABLE_NAME;
-            DB::statement("ALTER TABLE `{$tableName}` CONVERT TO CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci");
+            DB::statement('ALTER TABLE '.$grammar->wrapTable($tableName).' CONVERT TO CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci');
+        }
+
+        foreach ($foreignKeys as $tableName => $keys) {
+            foreach ($keys as $key) {
+                Schema::table($tableName, function (Blueprint $table) use ($key, $database) {
+                    $foreignTable = $key['foreign_schema'] === $database
+                        ? $key['foreign_table']
+                        : $key['foreign_schema'].'.'.$key['foreign_table'];
+
+                    $table->foreign($key['columns'], $key['name'])
+                        ->references($key['foreign_columns'])->on($foreignTable)
+                        ->onUpdate($key['on_update'])->onDelete($key['on_delete']);
+                });
+            }
         }
 
         // Note: Triggers and procedures would need to be recreated with utf8mb4_unicode_ci

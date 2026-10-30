@@ -2,6 +2,16 @@
 
 return [
 
+    'authelia' => [
+        'enabled' => env('AUTHELIA_ENABLED', false),
+        'base_url' => env('AUTHELIA_BASE_URL'),
+        'client_id' => env('AUTHELIA_CLIENT_ID'),
+        'client_secret' => env('AUTHELIA_CLIENT_SECRET'),
+        'redirect' => env('AUTHELIA_REDIRECT_URI', '/auth/authelia/callback'),
+        'auto_provision' => env('AUTHELIA_AUTO_PROVISION', true),
+        'default_role' => env('AUTHELIA_DEFAULT_ROLE', 'DBRO'),
+    ],
+
     /*
     |--------------------------------------------------------------------------
     | Third Party Services

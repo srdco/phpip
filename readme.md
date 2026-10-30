@@ -8,6 +8,8 @@ Since we are patent attorneys and don't have resources for selling and maintaini
 
 Head for the [Wiki](https://github.com/jjdejong/phpip/wiki) for further information.
 
+For optional organization-hosted single sign-on, see the [Authelia setup guide](docs/AUTHELIA.md).
+
 # New features
 
 ## 2026-04-23 USPTO ODP fallback/enrichment for US family members

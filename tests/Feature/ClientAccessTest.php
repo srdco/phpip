@@ -21,9 +21,7 @@ use Tests\TestCase;
  */
 class ClientAccessTest extends TestCase
 {
-    // Each test runs in a transaction that is rolled back, rather than using
-    // TestCase::resetDatabaseAndSeed(): its migrate:rollback reverses the
-    // utf8mb4 conversion migration, whose down() fails on this schema.
+    // Isolate fixtures without rolling back and rerunning application migrations.
     use DatabaseTransactions;
 
     protected function setUp(): void
