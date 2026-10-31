@@ -6,6 +6,7 @@
 Homestead.json
 Homestead.yaml
 .env
+.env.docker
 /nbproject/private/
 /config/renewal.php
 .DS_Store
