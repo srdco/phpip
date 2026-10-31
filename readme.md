@@ -8,6 +8,9 @@ Since we are patent attorneys and don't have resources for selling and maintaini
 
 Head for the [Wiki](https://github.com/jjdejong/phpip/wiki) for further information.
 
+For a container installation with PHP, MySQL, and the optional scheduler, see
+the [Docker guide](docs/DOCKER.md).
+
 # New features
 
 ## 2026-04-23 USPTO ODP fallback/enrichment for US family members
