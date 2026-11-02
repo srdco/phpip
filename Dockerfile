@@ -22,7 +22,7 @@ WORKDIR /var/www/html
 COPY --chmod=0644 docker/apache.conf /etc/apache2/sites-available/000-default.conf
 COPY --chmod=0644 docker/php.ini /usr/local/etc/php/conf.d/phpip.ini
 COPY --chmod=0755 docker/entrypoint.sh /usr/local/bin/phpip-entrypoint
-ENTRYPOINT ["phpip-entrypoint"]
+ENTRYPOINT ["/usr/local/bin/phpip-entrypoint"]
 CMD ["apache2-foreground"]
 
 FROM php-base AS dependencies
