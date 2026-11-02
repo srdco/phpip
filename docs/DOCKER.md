@@ -32,8 +32,10 @@ docker compose --env-file .env.docker run --rm app php artisan db:seed --force
 docker compose --env-file .env.docker up -d --wait app
 ```
 
-Open <http://localhost:8000>. A fresh seed creates the upstream initial login
-`phpipuser` / `changeme`; change its password immediately. Seeding is an explicit
+Open <http://localhost:8000>. Apache listens on container port 8080 for
+DigitalOcean App Platform compatibility; Compose maps it to host port 8000 by
+default. A fresh seed creates the upstream initial login `phpipuser` / `changeme`;
+change its password immediately. Seeding is an explicit
 first-install action, never an automatic container startup action. Do not seed
 an existing installation or import sample data into a real portfolio.
 

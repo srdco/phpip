@@ -16,6 +16,7 @@ RUN apt-get update && apt-get install -y --no-install-recommends \
     && docker-php-ext-configure gd --with-freetype --with-jpeg \
     && docker-php-ext-install -j"$(nproc)" gd intl mbstring pdo_mysql zip opcache \
     && a2enmod rewrite \
+    && sed -i 's/^Listen 80$/Listen 8080/' /etc/apache2/ports.conf \
     && rm -rf /var/lib/apt/lists/*
 COPY --from=composer:2 /usr/bin/composer /usr/local/bin/composer
 WORKDIR /var/www/html
@@ -24,6 +25,7 @@ COPY --chmod=0644 docker/php.ini /usr/local/etc/php/conf.d/phpip.ini
 COPY --chmod=0755 docker/entrypoint.sh /usr/local/bin/phpip-entrypoint
 ENTRYPOINT ["/bin/sh", "/usr/local/bin/phpip-entrypoint"]
 CMD ["apache2-foreground"]
+EXPOSE 8080
 
 FROM php-base AS dependencies
 COPY composer.json composer.lock ./
@@ -44,4 +46,4 @@ RUN chmod -R u=rwX,go=rX . \
     && ln -s /var/www/html/storage/app/public public/storage \
     && chown -R www-data:www-data storage bootstrap/cache
 HEALTHCHECK --interval=30s --timeout=5s --start-period=20s \
-    CMD curl --fail --silent http://127.0.0.1/up || exit 1
+    CMD curl --fail --silent http://127.0.0.1:8080/up || exit 1

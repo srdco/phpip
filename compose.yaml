@@ -24,7 +24,7 @@ services:
   app:
     <<: *application
     ports:
-      - "${APP_BIND_ADDRESS:-127.0.0.1}:${APP_PORT:-8000}:80"
+      - "${APP_BIND_ADDRESS:-127.0.0.1}:${APP_PORT:-8000}:8080"
     restart: unless-stopped
 
   scheduler:
