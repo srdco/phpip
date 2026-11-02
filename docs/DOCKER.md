@@ -5,6 +5,23 @@ scheduler. Composer dependencies and Vite assets are built into the image;
 PHP, Composer, Node, and MySQL do not need to be installed on the host.
 Use Docker Engine/Desktop with Compose v2 and BuildKit.
 
+## DigitalOcean App Platform
+
+App Platform builds the `Dockerfile` but does not start services from this
+repository's `compose.yaml`. The `DB_HOST=db` setting is supplied by Compose's
+app service; it cannot resolve in an App Platform container by itself. For App
+Platform, attach a MySQL database component or another reachable MySQL service
+and set `DB_HOST`, `DB_PORT`, `DB_DATABASE`, `DB_USERNAME`, and `DB_PASSWORD` in
+the app component from that database's connection details. Use its private host
+when both components are in the same DigitalOcean network. Do not set
+`DB_HOST=127.0.0.1` unless MySQL actually runs inside the app container.
+
+After setting the database connection, run `php artisan migrate --force` in an
+App Platform console or one-off job. Run `php artisan db:seed --force` only for
+a new test database; it creates the initial test user. App Platform runs the
+web container only, so schedule tasks separately or use the Compose setup on a
+Droplet, which starts both the app and database services together.
+
 ## First installation
 
 From the repository root:
