@@ -4,6 +4,8 @@ The stack contains PHP 8.4 with Apache, MySQL 8.4, and an optional Laravel
 scheduler. Composer dependencies and Vite assets are built into the image;
 PHP, Composer, Node, and MySQL do not need to be installed on the host.
 Use Docker Engine/Desktop with Compose v2 and BuildKit.
+The bundled MySQL defaults are tuned for a small test Droplet (one CPU and about
+512 MiB RAM); larger installations can increase its buffer pool and connections.
 
 ## DigitalOcean App Platform
 

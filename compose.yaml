@@ -49,6 +49,10 @@ services:
       - --character-set-server=utf8mb4
       - --collation-server=utf8mb4_0900_ai_ci
       - --log-bin-trust-function-creators=1
+      # Keep MySQL usable on small test Droplets while retaining stored routines.
+      - --innodb-buffer-pool-size=64M
+      - --max-connections=20
+      - --performance-schema=OFF
     volumes:
       - db-data:/var/lib/mysql
     healthcheck:
