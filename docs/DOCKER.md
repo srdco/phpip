@@ -24,7 +24,86 @@ a new test database; it creates the initial test user. App Platform runs the
 web container only, so schedule tasks separately or use the Compose setup on a
 Droplet, which starts both the app and database services together.
 
-## First installation
+## Ubuntu Droplet setup
+
+Install Docker Engine, Compose v2, and Git. On Ubuntu 24.04 the Compose package
+is named `docker-compose-v2`:
+
+```sh
+sudo apt update
+sudo apt install -y docker.io docker-compose-v2 git
+sudo systemctl enable --now docker
+docker compose version
+```
+
+Clone the repository (use the PR branch instead of `master` if testing before
+the Docker changes are merged):
+
+```sh
+git clone https://github.com/srdco/phpip.git ~/phpip
+cd ~/phpip
+cp .env.docker.example .env.docker
+chmod 600 .env.docker
+```
+
+Set `APP_KEY` in `.env.docker` to `base64:` followed by the output of
+`openssl rand -base64 32`. Set distinct `DB_PASSWORD` and `MYSQL_ROOT_PASSWORD`
+values, for example with `openssl rand -hex 24` twice. Set your company name,
+locale, timezone, and `APP_URL` for your domain. Keep the key and database
+passwords stable. Leave `APP_BIND_ADDRESS=127.0.0.1` when an HTTPS reverse proxy
+will forward requests to the Droplet's port 8000. Compose does not configure
+DNS or HTTPS.
+
+On a 512 MiB Droplet, check memory and swap using `free -h` and `swapon --show`
+before building. If swap is empty, add 2 GiB of swap for the Node asset build
+and PHP extension compilation:
+
+```sh
+sudo fallocate -l 2G /swapfile
+sudo chmod 600 /swapfile
+sudo mkswap /swapfile
+sudo swapon /swapfile
+echo '/swapfile none swap sw 0 0' | sudo tee -a /etc/fstab
+```
+
+Build the application, initialize the database, and start the web service:
+
+```sh
+docker compose --env-file .env.docker build app
+docker compose --env-file .env.docker up -d --wait db
+docker compose --env-file .env.docker run --rm app php artisan migrate --force
+docker compose --env-file .env.docker run --rm app php artisan db:seed --force
+docker compose --env-file .env.docker up -d --wait app
+docker compose --env-file .env.docker ps
+```
+
+If MySQL reports `--initialize specified but the data directory has files in
+it` on first boot, an interrupted initialization may have left partial files
+in the database volume. Inspect its logs:
+
+```sh
+docker compose --env-file .env.docker logs --tail=100 db
+```
+
+Only for a brand-new test setup with no migrations or needed data, remove the
+failed database volume and retry:
+
+```sh
+docker compose --env-file .env.docker down
+docker volume ls --filter name=phpip_db-data
+docker volume rm phpip_db-data
+docker compose --env-file .env.docker up -d --wait db
+```
+
+This removes only the database volume. `docker compose down -v` also deletes
+application storage; never remove volumes containing data you need.
+
+After the app is healthy, configure your domain's HTTPS reverse proxy to forward
+to `http://127.0.0.1:8000`, then open the domain set in `APP_URL`. A fresh seed
+creates `phpipuser` / `changeme`; change that password immediately. The
+scheduler remains disabled until explicitly enabled.
+
+## Local Docker setup
 
 From the repository root:
 
