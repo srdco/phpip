@@ -13,6 +13,10 @@ the [Docker guide](docs/DOCKER.md).
 
 # New features
 
+## 2026-11-02 Docker Compose setup
+
+phpIP can now run as an optional Docker Compose stack with PHP 8.4, MySQL 8.4, persistent database and application storage, and an optional Laravel scheduler. Existing non-Docker installations are unchanged. See the [Docker guide](docs/DOCKER.md) for setup and upgrade instructions.
+
 ## 2026-11-02 Microsoft 365 send-only mail
 
 The optional Microsoft Graph mailer sends through a fixed Exchange Online mailbox using application-only OAuth, with certificate or client-secret credentials. It uses Laravel's existing mail workflows and does not use EWS. Follow the [Exchange mail guide](docs/EXCHANGE_MAIL.md) to configure mailbox-scoped send-only access.
