@@ -10,6 +10,8 @@ x-application: &application
     DB_HOST: db
     DB_PORT: 3306
     DB_SOCKET: ""
+    # .env.docker also feeds MySQL initialization; don't pass its root secret to PHP.
+    MYSQL_ROOT_PASSWORD: ""
     LOG_CHANNEL: stderr
     CACHE_DRIVER: file
     SESSION_DRIVER: file

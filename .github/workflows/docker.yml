@@ -41,6 +41,7 @@ jobs:
           docker compose --env-file .env.docker exec -T app php artisan config:show renewr.url
       - name: Verify application and container replacement
         run: |
+          docker compose --env-file .env.docker exec -T app sh -c 'test -z "$MYSQL_ROOT_PASSWORD"'
           python3 tests/docker-smoke.py
           docker compose --env-file .env.docker exec -T app php artisan schedule:list
           docker compose --env-file .env.docker exec -T --user www-data app sh -c 'printf docker-persistence > storage/app/docker-smoke-check'
