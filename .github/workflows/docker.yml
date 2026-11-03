@@ -37,6 +37,8 @@ jobs:
           docker compose --env-file .env.docker run --rm app php artisan migrate --force
           docker compose --env-file .env.docker run --rm app php artisan db:seed --force
           docker compose --env-file .env.docker up -d --wait app
+          docker compose --env-file .env.docker exec -T app php artisan config:show renewal.invoice.captions
+          docker compose --env-file .env.docker exec -T app php artisan config:show renewr.url
       - name: Verify application and container replacement
         run: |
           python3 tests/docker-smoke.py

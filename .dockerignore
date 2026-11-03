@@ -11,6 +11,7 @@ bootstrap/cache/*.php
 storage/**
 !storage/**/.gitignore
 config/renewal.php
+config/renewr.php
 *.log
 *.sql.gz
 *-backup.sql

@@ -39,6 +39,8 @@ COPY --from=dependencies /var/www/html/vendor ./vendor
 COPY --from=assets /app/public/build ./public/build
 # Use the importing account as definer, rather than phpip@localhost from the dump.
 RUN chmod -R u=rwX,go=rX . \
+    && cp config/renewal.example.php config/renewal.php \
+    && cp config/renewr.example.php config/renewr.php \
     && sed -i 's/DEFINER=`[^`]*`@`[^`]*`//g' database/schema/mysql-schema.sql \
     && mkdir -p storage/app/public storage/app/cache storage/framework/cache/data \
         storage/framework/sessions storage/framework/views storage/logs bootstrap/cache \

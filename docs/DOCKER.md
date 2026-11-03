@@ -221,10 +221,29 @@ database and storage persistence. The same HTTP check can be run against a
 disposable seeded stack with `python3 tests/docker-smoke.py`. This is a container
 smoke check, not the full application test suite.
 
-If an existing installation uses a private `config/renewal.php`, mount that file
-read-only at `/var/www/html/config/renewal.php` for both app and scheduler using a
-local Compose override. It is deliberately excluded from the image because it
-may contain installation-specific credentials and billing configuration.
+The image creates active `config/renewal.php` and `config/renewr.php` from their
+tracked example files. This gives renewal pages usable defaults and lets the
+Renewr URL and key use the documented environment variables. Private host copies
+of either active config file are excluded from the image build. To supply a
+custom `config/renewal.php`, copy and edit the example on the host, then create
+`compose.override.yaml` (ignored by Git) to mount it into both services:
+
+```sh
+cp config/renewal.example.php config/renewal.php
+```
+
+```yaml
+services:
+  app:
+    volumes:
+      - ./config/renewal.php:/var/www/html/config/renewal.php:ro
+  scheduler:
+    volumes:
+      - ./config/renewal.php:/var/www/html/config/renewal.php:ro
+```
+
+The host `config/renewal.php` is ignored by Git; keep installation-specific
+billing credentials out of the image.
 
 ## Persistence and backups
 
