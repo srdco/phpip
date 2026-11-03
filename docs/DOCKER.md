@@ -52,7 +52,12 @@ values, for example with `openssl rand -hex 24` twice. Set your company name,
 locale, timezone, and `APP_URL` for your domain. Keep the key and database
 passwords stable. Leave `APP_BIND_ADDRESS=127.0.0.1` when an HTTPS reverse proxy
 will forward requests to the Droplet's port 8000. Compose does not configure
-DNS or HTTPS.
+DNS or HTTPS. For TLS termination at that proxy, set `TRUSTED_PROXIES` to its
+Docker-facing IP (or CIDR) so Laravel accepts its forwarded HTTPS header. Leave
+this unset when accessing the app directly without a reverse proxy. To inspect
+the Compose bridge gateway, run `docker network inspect phpip_default` and use
+the gateway shown there only if that is the address your proxy uses to reach
+the app.
 
 On a 512 MiB Droplet, check memory and swap using `free -h` and `swapon --show`
 before building. If swap is empty, add 2 GiB of swap for the Node asset build
